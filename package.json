@@ -1,21 +1,28 @@
 {
-  "name": "ecorecitecback",
+  "name": "algoritmo-humano-backend",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Backend do desafio Algoritmo Humano - Gestão de Cursos com Autenticação JWT",
+  "main": "src/server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev",
+    "prisma:seed": "node prisma/seed.js"
   },
-  "keywords": [],
+  "keywords": ["nodejs", "express", "jwt", "prisma", "sqlite"],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
+    "@prisma/client": "^5.0.0",
     "cors": "^2.8.5",
     "dotenv": "^17.0.1",
     "express": "^5.1.0",
-    "nodemailer": "^7.0.4",
-    "pg": "^8.16.3",
-    "sqlite3": "^5.1.7"
+    "jsonwebtoken": "^9.0.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1",
+    "prisma": "^5.0.0"
   }
 }
