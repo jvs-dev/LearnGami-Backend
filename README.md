@@ -1,10 +1,217 @@
-# Desafio Full-Stack Eco Recitec: Aplicação de Economia Circular
+# Algoritmo Humano - Backend
 
-Este projeto é uma aplicação full-stack desenvolvida como parte do processo seletivo para a empresa **Eco Recitec**. O objetivo é demonstrar a capacidade de construir uma solução completa e funcional sobre o tema **Economia Circular**, desde o frontend interativo até o backend com persistência de dados e envio de e-mails.
+Backend da aplicação de gestão de cursos com autenticação JWT.
+
+## Requisitos
+
+- Node.js 16+
+- npm ou yarn
+
+## Instalação
+
+```bash
+# Clonar o repositório
+git clone <seu-repositorio>
+cd algoritmo-humano-backend
+
+# Instalar dependências
+npm install
+
+# Configurar variáveis de ambiente
+cp .env.example .env
+
+# Executar migrations do Prisma
+npm run prisma:migrate
+```
+
+## Estrutura do Projeto
+
+```
+src/
+├── controllers/       # Lógica de negócio
+│   ├── authController.js
+│   └── courseController.js
+├── middlewares/       # Middlewares do Express
+│   └── auth.js
+├── routes/           # Definição de rotas
+│   ├── authRoutes.js
+│   ├── courseRoutes.js
+│   └── index.js
+├── services/         # Serviços (para futuras expansões)
+├── utils/            # Utilitários
+│   ├── jwt.js
+│   └── password.js
+└── server.js         # Arquivo principal
+
+prisma/
+├── schema.prisma     # Schema do banco de dados
+└── migrations/       # Histórico de migrations
+```
+
+## Iniciando o Servidor
+
+### Desenvolvimento
+```bash
+npm run dev
+```
+
+### Produção
+```bash
+npm start
+```
+
+O servidor estará rodando em `http://localhost:3001`
+
+## Endpoints da API
+
+### Autenticação (Públicos)
+
+#### Registrar Usuário
+```
+POST /api/auth/register
+Content-Type: application/json
+
+{
+  "email": "usuario@exemplo.com",
+  "name": "Nome do Usuário",
+  "password": "senha123"
+}
+```
+
+#### Login
+```
+POST /api/auth/login
+Content-Type: application/json
+
+{
+  "email": "usuario@exemplo.com",
+  "password": "senha123"
+}
+```
+
+### Cursos (Protegidos)
+
+Todos os endpoints de cursos (exceto `/api/courses/public`) requerem autenticação via JWT.
+
+**Header necessário:**
+```
+Authorization: Bearer <seu_token_jwt>
+```
+
+#### Listar Cursos Públicos (Sem autenticação)
+```
+GET /api/courses/public
+```
+
+#### Criar Curso
+```
+POST /api/courses
+Content-Type: application/json
+Authorization: Bearer <token>
+
+{
+  "title": "Título do Curso",
+  "description": "Descrição do curso",
+  "duration": 40,
+  "imageUrl": "https://exemplo.com/imagem.jpg",
+  "status": true
+}
+```
+
+#### Listar Meus Cursos
+```
+GET /api/courses
+Authorization: Bearer <token>
+```
+
+#### Obter Curso por ID
+```
+GET /api/courses/:id
+Authorization: Bearer <token>
+```
+
+#### Atualizar Curso
+```
+PUT /api/courses/:id
+Content-Type: application/json
+Authorization: Bearer <token>
+
+{
+  "title": "Novo título",
+  "description": "Nova descrição",
+  "duration": 50,
+  "imageUrl": "https://novo-url.com/img.jpg",
+  "status": true
+}
+```
+
+#### Deletar Curso
+```
+DELETE /api/courses/:id
+Authorization: Bearer <token>
+```
+
+## Autenticação
+
+A aplicação usa **JWT (JSON Web Tokens)** para autenticação. Após o login ou registro bem-sucedido, você receberá um token que deve ser enviado em todas as requisições protegidas no header `Authorization: Bearer <token>`.
+
+O token expira em **7 dias**.
+
+## Banco de Dados
+
+O projeto usa **SQLite** com **Prisma ORM** para gerenciar o banco de dados.
+
+### Tabelas
+
+- **User**: Usuários do sistema
+  - id (PK)
+  - email (único)
+  - name
+  - password (hash)
+  - createdAt
+  - updatedAt
+
+- **Course**: Cursos criados pelos usuários
+  - id (PK)
+  - title
+  - description
+  - duration
+  - imageUrl
+  - status (ativo/inativo)
+  - createdAt
+  - updatedAt
+  - userId (FK)
+
+## Tecnologias Utilizadas
+
+- **Express.js**: Framework web
+- **Prisma**: ORM para banco de dados
+- **JWT**: Autenticação segura
+- **SQLite**: Banco de dados
+- **CORS**: Controle de requisições cross-origin
+- **dotenv**: Gerencimento de variáveis de ambiente
+
+## Notas de Desenvolvimento
+
+- Senhas são armazenadas como hash SHA-256
+- Tokens JWT expiram em 7 dias
+- O banco de dados SQLite é salvo em `prisma/dev.db`
+- Utilize `npm run prisma:migrate` quando adicionar novas mudanças ao schema
+
+## Próximas Etapas
+
+- [ ] Implementar paginação nos endpoints
+- [ ] Adicionar filtros de busca em cursos
+- [ ] Implementar upload real de imagens
+- [ ] Adicionar testes unitários
+- [ ] Expandir modelo com módulos e aulas
+- [ ] Deploy em produção
 
 ---
 
-## 🚀 Funcionalidades
+**Desenvolvido com ❤️ para o desafio Algoritmo Humano**
+
+## Funcionalidades
 
 ### Página Principal (Home)
 
@@ -26,7 +233,7 @@ Este projeto é uma aplicação full-stack desenvolvida como parte do processo s
 
 ---
 
-## 🛠️ Tecnologias Utilizadas
+## Tecnologias Utilizadas
 
 ### Frontend
 
@@ -45,7 +252,7 @@ Este projeto é uma aplicação full-stack desenvolvida como parte do processo s
 
 ---
 
-## 📂 Estrutura do Projeto
+## Estrutura do Projeto
 
 ```
 eco-recitec-desafio/
@@ -82,7 +289,7 @@ eco-recitec-desafio/
 
 ---
 
-## ⚙️ Como Rodar Localmente
+## Como Rodar Localmente
 
 ### Pré-requisitos
 
@@ -173,15 +380,15 @@ Acesse: http://localhost:5173
 
 ---
 
-## ☁️ Deploy
+## Deploy
 
-### 🔹 Frontend (Vercel ou Netlify)
+### Frontend (Vercel ou Netlify)
 
 - `build command`: `npm run build`
 - `publish directory`: `dist`
 - Variável `VITE_API_URL`: https://ecorecitecbackend.onrender.com
 
-### 🔹 Backend (Render)
+### Backend (Render)
 
 - Conecte o repositório (pasta `backend`)
 - `build command`: `npm install`
@@ -190,7 +397,7 @@ Acesse: http://localhost:5173
 
 ---
 
-## 📚 API - Documentação
+## API - Documentação
 
 ### POST `/api/submissions`
 
@@ -230,7 +437,7 @@ Acesse: http://localhost:5173
 
 ---
 
-## ✅ Critérios Atendidos
+## Critérios Atendidos
 
 - Funcionalidade completa do fluxo: formulário → banco → e-mail → exibição
 - UI/UX responsiva e temática
@@ -241,7 +448,7 @@ Acesse: http://localhost:5173
 
 ---
 
-## 🔄 Versionamento
+## Versionamento
 
 Todo o projeto está versionado e disponível no GitHub:
 
@@ -251,7 +458,7 @@ Repositório BackEnd: *https://github.com/jvs-dev/EcoRecitecBackend*
 
 ---
 
-## 📧 Contato
+## Contato
 
 **Seu Nome:** João Vitor Santana da Silva  
 **E-mail:** jvssilv4@gmail.com  
