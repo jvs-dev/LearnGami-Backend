@@ -1,6 +1,6 @@
-# Algoritmo Humano - Backend
+# LearnGami - Backend
 
-Backend da aplicação de gestão de cursos com autenticação JWT.
+Backend da aplicação de gestão de cursos de Origami com autenticação JWT.
 
 ## Requisitos
 
