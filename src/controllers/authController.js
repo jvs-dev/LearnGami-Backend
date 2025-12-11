@@ -27,6 +27,7 @@ const register = async (req, res) => {
         email,
         name,
         password: hashedPassword,
+        role: 'USER', // Explicitly set role to USER by default
       },
     });
 
@@ -39,6 +40,7 @@ const register = async (req, res) => {
         id: user.id,
         email: user.email,
         name: user.name,
+        role: user.role,
       },
     });
   } catch (error) {
@@ -72,6 +74,7 @@ const login = async (req, res) => {
         id: user.id,
         email: user.email,
         name: user.name,
+        role: user.role,
       },
     });
   } catch (error) {
@@ -80,6 +83,7 @@ const login = async (req, res) => {
   }
 };
 
+// Function to get user data
 const getUserData = async (req, res) => {
   try {
     const userId = req.userId;
@@ -90,6 +94,7 @@ const getUserData = async (req, res) => {
         id: true,
         email: true,
         name: true,
+        role: true,
         createdAt: true,
       },
     });
@@ -107,8 +112,34 @@ const getUserData = async (req, res) => {
   }
 };
 
+// New function to get user count (admin only)
+const getUserCount = async (req, res) => {
+  try {
+    // First, get the user to check if they are admin
+    const user = await prisma.user.findUnique({
+      where: { id: req.userId },
+    });
+
+    // Check if user exists and is admin
+    if (!user || user.role !== 'ADMIN') {
+      return res.status(403).json({ error: 'Acesso negado. Apenas administradores podem acessar esta função.' });
+    }
+
+    // Get the total count of users
+    const count = await prisma.user.count();
+
+    res.status(200).json({
+      count,
+    });
+  } catch (error) {
+    console.error('Erro ao buscar contagem de usuários:', error);
+    res.status(500).json({ error: 'Erro interno do servidor' });
+  }
+};
+
 module.exports = {
   register,
   login,
   getUserData,
+  getUserCount,
 };

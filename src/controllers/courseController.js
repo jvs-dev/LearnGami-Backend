@@ -156,6 +156,7 @@ const getPublicCourses = async (req, res) => {
         user: {
           select: {
             name: true,
+            role: true,
           },
         },
       },
