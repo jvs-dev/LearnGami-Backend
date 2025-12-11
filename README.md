@@ -41,7 +41,7 @@ Develop a full-stack web application with user authentication and course managem
 ## 🛠️ Tech Stack
 
 - **Backend Framework**: Node.js + Express.js
-- **Database**: SQLite with Prisma ORM
+- **Database**: SQLite with Prisma ORM (local) / PostgreSQL (production)
 - **Authentication**: JWT (jsonwebtoken)
 - **Security**: CORS enabled, SHA-256 password hashing
 - **Deployment**: Render
@@ -146,6 +146,54 @@ npm run make:admin <user_id>
 
 Note: This must be done manually for security reasons.
 
+## 🌳 Git Branching Strategy
+
+This project uses a dual-branch strategy to accommodate different environments:
+
+### 1. `local-dev` Branch
+- **Purpose**: Local development environment
+- **Database**: SQLite for simplicity and ease of setup
+- **Configuration**: Optimized for local development with `npm run dev`
+- **Use Case**: Development, testing, and debugging on local machines
+
+### 2. `deploy-postgresql` Branch
+- **Purpose**: Production deployment on Render
+- **Database**: PostgreSQL for better performance and reliability
+- **Configuration**: Optimized for Render deployment with proper build scripts
+- **Use Case**: Production deployment and staging environments
+
+This separation allows developers to work locally with SQLite while ensuring the production environment uses PostgreSQL.
+
+## 🚨 Challenges and Solutions
+
+### Database Provider Conflict
+**Issue**: Initially, the application was configured for SQLite locally but Render provided a PostgreSQL database URL, causing validation errors:
+```
+Error validating datasource `db`: the URL must start with the protocol `file:`
+```
+
+**Solution**: 
+1. Created separate branches for different environments
+2. Configured `local-dev` branch with SQLite provider in Prisma schema
+3. Configured `deploy-postgresql` branch with PostgreSQL provider in Prisma schema
+4. Set up appropriate build scripts for each environment
+
+### Migration Strategy
+**Issue**: SQLite and PostgreSQL use different SQL dialects, making migrations incompatible between environments.
+
+**Solution**:
+1. Used `prisma migrate dev` for local SQLite development
+2. Used `prisma migrate deploy` for production PostgreSQL deployment
+3. Maintained separate migration histories in different branches
+
+### Environment Configuration
+**Issue**: Managing different environment variables and configurations for local vs. production environments.
+
+**Solution**:
+1. Created `.env.local` for local development with SQLite
+2. Let Render provide PostgreSQL DATABASE_URL automatically
+3. Used conditional configuration in `render.yaml` for proper deployment
+
 ## ☁️ Deployment
 
 This application is deployed on Render at: https://learngami-backend.onrender.com
@@ -156,7 +204,7 @@ The `render.yaml` file contains the deployment configuration:
 - Dynamic port assignment via `process.env.PORT`
 
 Important considerations:
-1. SQLite is used for simplicity but is not recommended for production
+1. SQLite is used for local development but PostgreSQL is used in production
 2. File uploads (if implemented) will not persist between deployments
 3. CORS is configured to allow all origins for development flexibility
 
