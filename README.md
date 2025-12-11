@@ -1,467 +1,109 @@
-# LearnGami - Backend
+# Algoritmo Humano Backend
 
-Backend da aplicação de gestão de cursos de Origami com autenticação JWT.
+Backend for the Algoritmo Humano technical challenge - Course Management Platform with JWT Authentication.
 
-## Requisitos
+## Features
+
+- User authentication with JWT
+- Course management (CRUD)
+- Lesson management (CRUD)
+- Public course catalog
+- Role-based access control (USER/ADMIN)
+
+## Tech Stack
+
+- Node.js + Express.js
+- SQLite with Prisma ORM
+- JWT for authentication
+- CORS enabled for cross-origin requests
+
+## Prerequisites
 
 - Node.js 16+
-- npm ou yarn
+- npm
 
-## Instalação
+## Installation
 
 ```bash
-# Clonar o repositório
-git clone <seu-repositorio>
-cd algoritmo-humano-backend
-
-# Instalar dependências
 npm install
+```
 
-# Configurar variáveis de ambiente
-cp .env.example .env
+## Environment Variables
 
-# Executar migrations do Prisma
+Create a `.env` file based on `.env.example`:
+
+```env
+DATABASE_URL="file:./dev.db"
+JWT_SECRET="your_secret_key_here"
+PORT=3001
+```
+
+## Database Setup
+
+```bash
+# Generate Prisma client
+npm run prisma:generate
+
+# Run migrations
 npm run prisma:migrate
 ```
 
-## Estrutura do Projeto
+## Running the Application
 
-```
-src/
-├── controllers/       # Lógica de negócio
-│   ├── authController.js
-│   └── courseController.js
-├── middlewares/       # Middlewares do Express
-│   └── auth.js
-├── routes/           # Definição de rotas
-│   ├── authRoutes.js
-│   ├── courseRoutes.js
-│   └── index.js
-├── services/         # Serviços (para futuras expansões)
-├── utils/            # Utilitários
-│   ├── jwt.js
-│   └── password.js
-└── server.js         # Arquivo principal
+### Development Mode
 
-prisma/
-├── schema.prisma     # Schema do banco de dados
-└── migrations/       # Histórico de migrations
-```
-
-## Iniciando o Servidor
-
-### Desenvolvimento
 ```bash
 npm run dev
 ```
 
-### Produção
+### Production Mode
+
 ```bash
 npm start
 ```
 
-O servidor estará rodando em `http://localhost:3001`
+## API Endpoints
 
-## Endpoints da API
+### Authentication
+- `POST /api/auth/register` - Register a new user
+- `POST /api/auth/login` - Login
+- `GET /api/auth/me` - Get authenticated user data
+- `GET /api/auth/count` - Get total user count (admin only)
 
-### Autenticação (Públicos)
+### Courses
+- `GET /api/courses/public` - Get all public (active) courses
+- `GET /api/courses/public/:id` - Get a specific public course
+- `POST /api/courses` - Create a course (authenticated)
+- `GET /api/courses` - Get all user's courses (authenticated)
+- `GET /api/courses/:id` - Get a specific course (authenticated)
+- `PUT /api/courses/:id` - Update a course (authenticated)
+- `DELETE /api/courses/:id` - Delete a course (authenticated)
 
-#### Registrar Usuário
-```
-POST /api/auth/register
-Content-Type: application/json
+### Lessons
+- `GET /api/lessons/public/course/:courseId` - Get all public lessons for a course
+- `POST /api/lessons` - Create a lesson (authenticated)
+- `GET /api/lessons/course/:courseId` - Get all lessons for a course (authenticated)
+- `GET /api/lessons/:id` - Get a specific lesson (authenticated)
+- `PUT /api/lessons/:id` - Update a lesson (authenticated)
+- `DELETE /api/lessons/:id` - Delete a lesson (authenticated)
 
-{
-  "email": "usuario@exemplo.com",
-  "name": "Nome do Usuário",
-  "password": "senha123"
-}
-```
+## Deployment to Render
 
-#### Login
-```
-POST /api/auth/login
-Content-Type: application/json
+This application is configured for deployment to Render. The `render.yaml` file contains the necessary configuration.
 
-{
-  "email": "usuario@exemplo.com",
-  "password": "senha123"
-}
-```
+Important notes for deployment:
+1. The application uses SQLite which is suitable for this challenge but not recommended for production
+2. File uploads (if implemented) will not persist between deployments due to Render's ephemeral filesystem
+3. The database file will be stored in the Render instance's filesystem
 
-### Cursos (Protegidos)
+### Making a User Admin
 
-Todos os endpoints de cursos (exceto `/api/courses/public`) requerem autenticação via JWT.
-
-**Header necessário:**
-```
-Authorization: Bearer <seu_token_jwt>
-```
-
-#### Listar Cursos Públicos (Sem autenticação)
-```
-GET /api/courses/public
-```
-
-#### Criar Curso
-```
-POST /api/courses
-Content-Type: application/json
-Authorization: Bearer <token>
-
-{
-  "title": "Título do Curso",
-  "description": "Descrição do curso",
-  "duration": 40,
-  "imageUrl": "https://exemplo.com/imagem.jpg",
-  "status": true
-}
-```
-
-#### Listar Meus Cursos
-```
-GET /api/courses
-Authorization: Bearer <token>
-```
-
-#### Obter Curso por ID
-```
-GET /api/courses/:id
-Authorization: Bearer <token>
-```
-
-#### Atualizar Curso
-```
-PUT /api/courses/:id
-Content-Type: application/json
-Authorization: Bearer <token>
-
-{
-  "title": "Novo título",
-  "description": "Nova descrição",
-  "duration": 50,
-  "imageUrl": "https://novo-url.com/img.jpg",
-  "status": true
-}
-```
-
-#### Deletar Curso
-```
-DELETE /api/courses/:id
-Authorization: Bearer <token>
-```
-
-## Autenticação
-
-A aplicação usa **JWT (JSON Web Tokens)** para autenticação. Após o login ou registro bem-sucedido, você receberá um token que deve ser enviado em todas as requisições protegidas no header `Authorization: Bearer <token>`.
-
-O token expira em **7 dias**.
-
-## Banco de Dados
-
-O projeto usa **SQLite** com **Prisma ORM** para gerenciar o banco de dados.
-
-### Tabelas
-
-- **User**: Usuários do sistema
-  - id (PK)
-  - email (único)
-  - name
-  - password (hash)
-  - createdAt
-  - updatedAt
-
-- **Course**: Cursos criados pelos usuários
-  - id (PK)
-  - title
-  - description
-  - duration
-  - imageUrl
-  - status (ativo/inativo)
-  - createdAt
-  - updatedAt
-  - userId (FK)
-
-## Tecnologias Utilizadas
-
-- **Express.js**: Framework web
-- **Prisma**: ORM para banco de dados
-- **JWT**: Autenticação segura
-- **SQLite**: Banco de dados
-- **CORS**: Controle de requisições cross-origin
-- **dotenv**: Gerencimento de variáveis de ambiente
-
-## Notas de Desenvolvimento
-
-- Senhas são armazenadas como hash SHA-256
-- Tokens JWT expiram em 7 dias
-- O banco de dados SQLite é salvo em `prisma/dev.db`
-- Utilize `npm run prisma:migrate` quando adicionar novas mudanças ao schema
-
-## Próximas Etapas
-
-- [ ] Implementar paginação nos endpoints
-- [ ] Adicionar filtros de busca em cursos
-- [ ] Implementar upload real de imagens
-- [ ] Adicionar testes unitários
-- [ ] Expandir modelo com módulos e aulas
-- [ ] Deploy em produção
-
----
-
-**Desenvolvido com ❤️ para o desafio Algoritmo Humano**
-
-## Funcionalidades
-
-### Página Principal (Home)
-
-- Introdução ao conceito de Economia Circular
-- Ilustrações dos princípios: **Reduzir, Reutilizar, Reciclar**
-- **Carrossel vertical de imagens** com Swiper.js
-- **Formulário de contato** com validação básica e feedback visual
-
-### Backend (API RESTful)
-
-- Endpoint `POST /api/submissions`: recebe, salva e envia e-mail com os dados do formulário
-- Endpoint `GET /api/submissions`: retorna todas as submissões
-- Envio de e-mails com **Nodemailer + Brevo**
-- Armazenamento em banco **PostgreSQL**
-
-### Página de Dados (Tabela)
-
-- Tabela responsiva exibindo: Nome, E-mail, Mensagem e Data de Cadastro
-
----
-
-## Tecnologias Utilizadas
-
-### Frontend
-
-- **React** + **Vite.js**
-- **React Router DOM**
-- **Styled Components**
-- **Swiper.js** (carrossel)
-- **Fetch API**, **Google Fonts**, **Ionicons**, **Bootstrap Icons**
-
-### Backend
-
-- **Node.js** + **Express**
-- **PostgreSQL** com o driver `pg`
-- **Nodemailer**
-- **dotenv**, **cors**
-
----
-
-## Estrutura do Projeto
-
-```
-eco-recitec-desafio/
-├── frontend/
-│   ├── public/
-│   ├── src/
-│   │   ├── components/
-│   │   │   ├── styles/
-│   │   │   ├── MailForm.jsx
-│   │   │   ├── MessageBox.jsx
-│   │   │   └── Navbar.jsx
-│   │   ├── pages/
-│   │   │   ├── styles/
-│   │   │   ├── DataPage.jsx
-│   │   │   └── HomePage.jsx
-│   │   ├── styles/
-│   │   ├── App.jsx
-│   │   └── main.jsx
-│   ├── .env.development
-│   ├── .env.production
-│   ├── package.json
-│   └── vite.config.js
-├── backend/
-│   ├── src/
-│   │   ├── routes.js
-│   │   └── server.js
-│   ├── .env
-│   ├── package.json
-│   └── nodemon.json
-├── .gitignore
-├── README.md
-└── docker-compose.yml (opcional)
-```
-
----
-
-## Como Rodar Localmente
-
-### Pré-requisitos
-
-- Node.js
-- npm
-- PostgreSQL
-- Conta na Brevo (Sendinblue) ou outro SMTP
-
-### 1. Backend
+To make a user an admin, use the provided script:
 
 ```bash
-cd backend
-npm install
+npm run make:admin <user_id>
 ```
 
-Crie `.env` com:
+## License
 
-```
-DATABASE_URL="postgresql://usuario:senha@localhost:5432/nome_do_banco"
-SMTP_HOST="smtp-relay.brevo.com"
-SMTP_PORT="587"
-SMTP_USER="seu_email@dominio.com"
-SMTP_PASS="sua_chave_api"
-EMAIL_FROM="seu_email@dominio.com"
-```
-
-Crie o banco e a tabela `submissions`:
-
-```sql
-CREATE TABLE submissions (
-    id SERIAL PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    email VARCHAR(255) NOT NULL,
-    message TEXT,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-);
-```
-
-Inicie o servidor:
-
-```bash
-npm run dev
-```
-
-Acesse: http://localhost:3001
-
----
-
-### 2. Frontend
-
-```bash
-cd frontend
-npm install
-npm install swiper
-```
-
-Crie `.env.development`:
-
-```
-VITE_API_URL="http://localhost:3001"
-```
-
-Importe fontes e ícones em `public/index.html`:
-
-```html
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link
-  rel="stylesheet"
-  href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&family=Poppins:wght@400;500;700;800&display=swap"
-/>
-<script
-  type="module"
-  src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"
-></script>
-<link
-  rel="stylesheet"
-  href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
-/>
-```
-
-Inicie:
-
-```bash
-npm run dev
-```
-
-Acesse: http://localhost:5173
-
----
-
-## Deploy
-
-### Frontend (Vercel ou Netlify)
-
-- `build command`: `npm run build`
-- `publish directory`: `dist`
-- Variável `VITE_API_URL`: https://ecorecitecbackend.onrender.com
-
-### Backend (Render)
-
-- Conecte o repositório (pasta `backend`)
-- `build command`: `npm install`
-- `start command`: `node src/server.js`
-- Configure variáveis de ambiente
-
----
-
-## API - Documentação
-
-### POST `/api/submissions`
-
-#### Corpo:
-
-```json
-{
-  "name": "João Silva",
-  "email": "joao@email.com",
-  "message": "Mensagem aqui"
-}
-```
-
-#### Respostas:
-
-- `201`: Sucesso
-- `400`: Campos obrigatórios
-- `500`: Erro interno
-
----
-
-### GET `/api/submissions`
-
-#### Resposta:
-
-```json
-[
-  {
-    "id": 1,
-    "name": "Maria",
-    "email": "maria@example.com",
-    "message": "Interessada em parcerias.",
-    "created_at": "2025-07-04T12:05:30.000Z"
-  }
-]
-```
-
----
-
-## Critérios Atendidos
-
-- Funcionalidade completa do fluxo: formulário → banco → e-mail → exibição
-- UI/UX responsiva e temática
-- Código modular, limpo e com boas práticas
-- Deploy funcional (pronto para Render + Vercel/Netlify)
-- Validações e tratamento de erros
-- Documentação clara neste `README.md`
-
----
-
-## Versionamento
-
-Todo o projeto está versionado e disponível no GitHub:
-
-🔗 **Repositórios**:\
-Repositório FrontEnd: *https://github.com/jvs-dev/EcoRecitecFront*\
-Repositório BackEnd: *https://github.com/jvs-dev/EcoRecitecBackend*
-
----
-
-## Contato
-
-**Seu Nome:** João Vitor Santana da Silva  
-**E-mail:** jvssilv4@gmail.com  
-**LinkedIn:** [https://linkedin.com/in/joão-vitor-dev](https://linkedin.com/in/joão-vitor-dev)
-
----
+ISC
