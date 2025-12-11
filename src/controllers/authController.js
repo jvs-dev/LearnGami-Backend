@@ -27,11 +27,10 @@ const register = async (req, res) => {
         email,
         name,
         password: hashedPassword,
-        role: 'USER', // Explicitly set role to USER by default
+        role: 'USER',
       },
     });
 
-    // Generate token with user ID and role
     const token = generateToken(user.id, user.role);
 
     res.status(201).json({
@@ -66,7 +65,6 @@ const login = async (req, res) => {
       return res.status(401).json({ error: 'Email ou senha inválidos' });
     }
 
-    // Generate token with user ID and role
     const token = generateToken(user.id, user.role);
 
     res.status(200).json({
@@ -85,7 +83,6 @@ const login = async (req, res) => {
   }
 };
 
-// Function to get user data
 const getUserData = async (req, res) => {
   try {
     const userId = req.userId;
@@ -114,20 +111,16 @@ const getUserData = async (req, res) => {
   }
 };
 
-// New function to get user count (admin only)
 const getUserCount = async (req, res) => {
   try {
-    // First, get the user to check if they are admin
     const user = await prisma.user.findUnique({
       where: { id: req.userId },
     });
 
-    // Check if user exists and is admin
     if (!user || user.role !== 'ADMIN') {
       return res.status(403).json({ error: 'Acesso negado. Apenas administradores podem acessar esta função.' });
     }
 
-    // Get the total count of users
     const count = await prisma.user.count();
 
     res.status(200).json({

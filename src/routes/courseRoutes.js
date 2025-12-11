@@ -7,14 +7,14 @@ const {
   updateCourse,
   deleteCourse,
   getPublicCourses,
+  getPublicCourseById,
 } = require('../controllers/courseController');
 
 const router = express.Router();
 
-// public routes
 router.get('/public', getPublicCourses);
+router.get('/public/:id', getPublicCourseById);
 
-// protected routes
 router.post('/', authMiddleware, createCourse);
 router.get('/', authMiddleware, getCourses);
 router.get('/:id', authMiddleware, getCourseById);

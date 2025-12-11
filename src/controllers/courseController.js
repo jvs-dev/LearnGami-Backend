@@ -2,7 +2,6 @@ const { PrismaClient } = require('@prisma/client');
 
 const prisma = new PrismaClient();
 
-// Criar curso
 const createCourse = async (req, res) => {
   try {
     const { title, description, duration, imageUrl, status } = req.body;
@@ -33,7 +32,6 @@ const createCourse = async (req, res) => {
   }
 };
 
-// Listar todos os cursos do usuário autenticado
 const getCourses = async (req, res) => {
   try {
     const userId = req.userId;
@@ -59,7 +57,6 @@ const getCourses = async (req, res) => {
   }
 };
 
-// Listar curso por ID
 const getCourseById = async (req, res) => {
   try {
     const { id } = req.params;
@@ -96,7 +93,6 @@ const getCourseById = async (req, res) => {
   }
 };
 
-// Atualizar curso
 const updateCourse = async (req, res) => {
   try {
     const { id } = req.params;
@@ -135,7 +131,6 @@ const updateCourse = async (req, res) => {
   }
 };
 
-// Deletar curso
 const deleteCourse = async (req, res) => {
   try {
     const { id } = req.params;
@@ -163,11 +158,12 @@ const deleteCourse = async (req, res) => {
   }
 };
 
-// Catálogo público de cursos (sem autenticação)
 const getPublicCourses = async (req, res) => {
   try {
     const courses = await prisma.course.findMany({
-      where: { status: true },
+      where: {
+        status: true
+      },
       select: {
         id: true,
         title: true,
@@ -181,13 +177,99 @@ const getPublicCourses = async (req, res) => {
             role: true,
           },
         },
+        _count: {
+          select: { lessons: true }
+        }
       },
       orderBy: { createdAt: 'desc' },
     });
 
-    res.status(200).json(courses);
+    const transformedCourses = courses.map(course => ({
+      id: course.id,
+      title: course.title,
+      description: course.description,
+      duration: course.duration,
+      imageUrl: course.imageUrl,
+      createdAt: course.createdAt,
+      instructor: {
+        name: course.user.name,
+        role: course.user.role,
+      },
+      lessonCount: course._count.lessons
+    }));
+
+    res.status(200).json(transformedCourses);
   } catch (error) {
     console.error('Erro ao buscar cursos públicos:', error);
+    res.status(500).json({ error: 'Erro interno do servidor' });
+  }
+};
+
+const getPublicCourseById = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const course = await prisma.course.findFirst({
+      where: {
+        id: parseInt(id),
+        status: true
+      },
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        duration: true,
+        imageUrl: true,
+        createdAt: true,
+        updatedAt: true,
+        user: {
+          select: {
+            name: true,
+            role: true,
+          },
+        },
+        lessons: {
+          where: {
+            status: true
+          },
+          select: {
+            id: true,
+            name: true,
+            description: true,
+            coverImage: true,
+            videoUrl: true,
+            createdAt: true,
+          }
+        },
+        _count: {
+          select: { lessons: true }
+        }
+      }
+    });
+
+    if (!course) {
+      return res.status(404).json({ error: 'Curso não encontrado ou inativo' });
+    }
+
+    const transformedCourse = {
+      id: course.id,
+      title: course.title,
+      description: course.description,
+      duration: course.duration,
+      imageUrl: course.imageUrl,
+      createdAt: course.createdAt,
+      updatedAt: course.updatedAt,
+      instructor: {
+        name: course.user.name,
+        role: course.user.role,
+      },
+      lessons: course.lessons,
+      lessonCount: course._count.lessons
+    };
+
+    res.status(200).json(transformedCourse);
+  } catch (error) {
+    console.error('Erro ao buscar curso público:', error);
     res.status(500).json({ error: 'Erro interno do servidor' });
   }
 };
@@ -199,4 +281,5 @@ module.exports = {
   updateCourse,
   deleteCourse,
   getPublicCourses,
+  getPublicCourseById,
 };

@@ -2,7 +2,6 @@ const { PrismaClient } = require('@prisma/client');
 
 const prisma = new PrismaClient();
 
-// Create a new lesson
 const createLesson = async (req, res) => {
   try {
     const { name, description, coverImage, videoUrl, courseId } = req.body;
@@ -12,7 +11,6 @@ const createLesson = async (req, res) => {
       return res.status(400).json({ error: 'Nome, descrição, URL do vídeo e ID do curso são obrigatórios' });
     }
 
-    // Check if the course belongs to the authenticated user
     const course = await prisma.course.findFirst({
       where: {
         id: parseInt(courseId),
@@ -44,13 +42,11 @@ const createLesson = async (req, res) => {
   }
 };
 
-// Get all lessons for a specific course
 const getLessonsByCourse = async (req, res) => {
   try {
     const { courseId } = req.params;
     const userId = req.userId;
 
-    // Check if the course belongs to the authenticated user
     const course = await prisma.course.findFirst({
       where: {
         id: parseInt(courseId),
@@ -74,7 +70,6 @@ const getLessonsByCourse = async (req, res) => {
   }
 };
 
-// Get a specific lesson
 const getLessonById = async (req, res) => {
   try {
     const { id } = req.params;
@@ -93,7 +88,6 @@ const getLessonById = async (req, res) => {
       return res.status(404).json({ error: 'Aula não encontrada' });
     }
 
-    // Check if the course belongs to the authenticated user
     if (lesson.course.userId !== userId) {
       return res.status(403).json({ error: 'Aula não pertence ao usuário' });
     }
@@ -105,7 +99,6 @@ const getLessonById = async (req, res) => {
   }
 };
 
-// Update a lesson
 const updateLesson = async (req, res) => {
   try {
     const { id } = req.params;
@@ -125,7 +118,6 @@ const updateLesson = async (req, res) => {
       return res.status(404).json({ error: 'Aula não encontrada' });
     }
 
-    // Check if the course belongs to the authenticated user
     if (lesson.course.userId !== userId) {
       return res.status(403).json({ error: 'Aula não pertence ao usuário' });
     }
@@ -151,7 +143,6 @@ const updateLesson = async (req, res) => {
   }
 };
 
-// Delete a lesson
 const deleteLesson = async (req, res) => {
   try {
     const { id } = req.params;
@@ -170,7 +161,6 @@ const deleteLesson = async (req, res) => {
       return res.status(404).json({ error: 'Aula não encontrada' });
     }
 
-    // Check if the course belongs to the authenticated user
     if (lesson.course.userId !== userId) {
       return res.status(403).json({ error: 'Aula não pertence ao usuário' });
     }
@@ -186,12 +176,10 @@ const deleteLesson = async (req, res) => {
   }
 };
 
-// Get public lessons for a course (for non-authenticated users)
 const getPublicLessonsByCourse = async (req, res) => {
   try {
     const { courseId } = req.params;
 
-    // Check if the course exists and is active
     const course = await prisma.course.findFirst({
       where: {
         id: parseInt(courseId),
