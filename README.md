@@ -152,7 +152,7 @@ This application is deployed on Render at: https://learngami-backend.onrender.co
 
 The `render.yaml` file contains the deployment configuration:
 - Automatic installation of dependencies
-- Prisma client generation and database migration on startup
+- Prisma client generation and database migration on startup using `prisma migrate deploy` for production
 - Dynamic port assignment via `process.env.PORT`
 
 Important considerations:
