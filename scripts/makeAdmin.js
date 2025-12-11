@@ -3,8 +3,7 @@ const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
 async function makeUserAdmin(userId) {
-  try {
-    // Check if user exists
+  try {    
     const user = await prisma.user.findUnique({
       where: { id: userId },
     });

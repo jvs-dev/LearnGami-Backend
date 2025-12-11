@@ -7,7 +7,7 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 
 app.use(cors({
-  origin: '*', // Allow all origins for the challenge
+  origin: '*',
 }));
 app.use(express.json());
 
