@@ -31,7 +31,8 @@ const register = async (req, res) => {
       },
     });
 
-    const token = generateToken(user.id);
+    // Generate token with user ID and role
+    const token = generateToken(user.id, user.role);
 
     res.status(201).json({
       message: 'Usuário registrado com sucesso',
@@ -65,7 +66,8 @@ const login = async (req, res) => {
       return res.status(401).json({ error: 'Email ou senha inválidos' });
     }
 
-    const token = generateToken(user.id);
+    // Generate token with user ID and role
+    const token = generateToken(user.id, user.role);
 
     res.status(200).json({
       message: 'Login realizado com sucesso',
