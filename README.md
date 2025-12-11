@@ -215,6 +215,8 @@ Important considerations:
 3. **Extensible Design**: Easy to add new entities (modules, quizzes, etc.)
 4. **RESTful API Design**: Consistent endpoint structure and HTTP status codes
 5. **Error Handling**: Comprehensive error responses with appropriate HTTP codes
+5. **Make Documentation**: Auto document changes to the readme
+
 
 ## 🧪 Development Process
 
@@ -227,11 +229,8 @@ All code was carefully reviewed and tested to ensure quality and security standa
 
 ## 📈 Future Enhancements (Differentials)
 
-- [ ] Filter courses by status or search by title
-- [ ] Implement pagination for course listings
 - [ ] Add real image upload functionality with cloud storage
 - [ ] Create unit tests for all endpoints
-- [ ] Expand course model with modules and quizzes
 
 ## 📝 License
 
