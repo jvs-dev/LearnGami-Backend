@@ -3,9 +3,11 @@ services:
     name: algoritmo-humano-backend
     env: node
     buildCommand: npm install
-    startCommand: DATABASE_URL=file:./dev.db npm run prisma:generate && npm run prisma:migrate && npm start
+    startCommand: npm run prisma:generate && npm run prisma:migrate && npm start
     envVars:
       - key: NODE_ENV
         value: production
+      - key: DATABASE_URL
+        value: file:./dev.db
       - key: JWT_SECRET
         generateValue: true
