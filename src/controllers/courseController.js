@@ -41,6 +41,15 @@ const getCourses = async (req, res) => {
     const courses = await prisma.course.findMany({
       where: { userId },
       orderBy: { createdAt: 'desc' },
+      include: {
+        lessons: {
+          select: {
+            id: true,
+            name: true,
+            status: true,
+          }
+        }
+      }
     });
 
     res.status(200).json(courses);
@@ -61,6 +70,19 @@ const getCourseById = async (req, res) => {
         id: parseInt(id),
         userId,
       },
+      include: {
+        lessons: {
+          select: {
+            id: true,
+            name: true,
+            description: true,
+            coverImage: true,
+            videoUrl: true,
+            status: true,
+            createdAt: true,
+          }
+        }
+      }
     });
 
     if (!course) {
