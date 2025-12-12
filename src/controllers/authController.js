@@ -20,7 +20,7 @@ const register = async (req, res) => {
       return res.status(409).json({ error: 'Usuário já cadastrado' });
     }
 
-    const hashedPassword = hashPassword(password);
+    const hashedPassword = await hashPassword(password);
 
     const user = await prisma.user.create({
       data: {
@@ -61,7 +61,13 @@ const login = async (req, res) => {
       where: { email },
     });
 
-    if (!user || !comparePassword(password, user.password)) {
+    if (!user) {
+      return res.status(401).json({ error: 'Email ou senha inválidos' });
+    }
+
+    const isPasswordValid = await comparePassword(password, user.password);
+
+    if (!isPasswordValid) {
       return res.status(401).json({ error: 'Email ou senha inválidos' });
     }
 
